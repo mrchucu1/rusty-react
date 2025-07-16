@@ -12,88 +12,109 @@ An educational exploration into rewriting the core principles of React in Rust.
 
 **This is not intended to be a production-ready framework.** Instead, it serves as a "from-scratch" implementation to model concepts like:
 
-*   The Virtual DOM
-*   The `createElement` and element structure
-*   The reconciliation (diffing) algorithm
-*   Component-based architecture
-*   State management
+- The Virtual DOM
+- The `createElement` and element structure
+- The reconciliation (diffing) algorithm
+- Component-based architecture
+- State management
 
 We draw heavy inspiration from the actual React codebase and other innovative Rust-based UI frameworks like Dioxus and Yew.
 
 ## Current Status
 
-**Stage: 1 - Foundational Structures**
+**Stage: 2 - Initial DOM Rendering**
 
-The project is in its earliest phase. We have successfully implemented the foundational data structures required to represent a UI in memory.
+We have successfully implemented the foundational structures and a basic renderer capable of mounting a virtual DOM tree to a live browser DOM.
 
--   [x] Defined `Element` and `Node` (for text) structs.
--   [x] Implemented a `create_element` function, analogous to `React.createElement`.
--   [x] Established support for `props` (attributes) and `children`.
--   [x] The core "Virtual DOM" tree can be built in memory.
+- [x] Defined `Element` and `Node` (for text) structs for the Virtual DOM.
+- [x] Implemented a "Virtual DOM" tree can be built in memory.
+- [x] Established support for `props` (attributes) and `children`.
+- [x] **(New)** Implemented a Rust function `render()` that translates the Virtual DOM tree into real DOM nodes using WebAssembly and `web-sys`.
+- [x] **(New)** Created a bridge to JavaScript, allowing the Rust `render` function to be called from a standard TypeScript/Vite application.
 
-The library does not yet render anything to the screen.
+The library can now render a static UI to the screen.
 
-## Core Concepts
+---
 
-The current implementation is built around two fundamental ideas:
+## Developer Guide
 
-1.  **`Node`**: The basic unit of the UI tree. A `Node` can be one of two things:
-    *   `Node::Element`: Represents an HTML-like element with a tag name, props, and children (e.g., a `<div>` or `<h1>`).
-    *   `Node::Text`: Represents a simple string of text.
+This guide explains how to set up the development environment, build the project, and run the example application.
 
-2.  **Virtual DOM**: By composing `Node`s together, we can build a complete, in-memory representation of our target UI. This tree is the "Virtual DOM". The ultimate goal is to compare an old version of this tree with a new one to efficiently update the user interface.
+### Prerequisites
 
-## Usage
+You must have the following tools installed on your system:
+- **Rust:** The core language toolchain. Install it via [rustup.rs](https://rustup.rs/).
+- **`wasm-pack`:** The tool for compiling Rust to WebAssembly. Install it with Cargo:
+  ```bash
+  cargo install wasm-pack
+  ```
+- **Node.js & npm:** For managing the TypeScript example application. Install it from [nodejs.org](https://nodejs.org/).
 
-To use `rusty-react` at its current stage, you would add it as a dependency and use the `create_element` and `create_text_node` functions to build a UI tree.
+### Folder Structure
 
-Here's an example of creating a simple application structure in memory:
+- `src/`: The core Rust library code for `rusty-react`.
+- `examples/basic-render-test/`: A Vite + TypeScript application that *consumes* our library to test it in a browser.
+- `pkg/`: **Generated folder.** This contains the compiled WebAssembly, JavaScript glue code, and TypeScript definitions. **Do not edit files in this directory.** It's created by `wasm-pack`.
+- `Cargo.toml`: The Rust project manifest.
 
-```rust
-use rusty_react::{create_element, create_text_node, Node};
-use std::collections::HashMap;
+### The Development Workflow
 
-fn main() {
-    // Represents: <h1>Welcome</h1>
-    let heading = create_element(
-        "h1".to_string(),
-        HashMap::new(),
-        vec![create_text_node("Welcome".to_string())],
-    );
+The core development loop involves making changes to the Rust library and then viewing those changes in the example browser app.
 
-    // Represents: <p>This is our rusty-react app.</p>
-    let paragraph = create_element(
-        "p".to_string(),
-        HashMap::new(),
-        vec![create_text_node("This is our rusty-react app.".to_string())],
-    );
+#### **Step 1: First-Time Setup**
 
-    // Represents: <div id="app" class="container">...</div>
-    let app = create_element(
-        "div".to_string(),
-        {
-            let mut props = HashMap::new();
-            props.insert("id".to_string(), "app".to_string());
-            props.insert("class".to_string(), "container".to_string());
-            props
-        },
-        vec![heading, paragraph],
-    );
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/mrchucu1/rusty-react.git
+    cd rusty-react
+    ```
+2.  **Build the Rust library into a Wasm package:**
+    This command compiles the Rust code in `src/` and places the output (our "npm package") into the `pkg/` directory.
+    ```bash
+    wasm-pack build --target web
+    ```
+3.  **Install the example app's dependencies:**
+    This `npm` command sets up the Vite project and creates a symlink to our local `pkg/` directory.
+    ```bash
+    cd examples/basic-render-test
+    npm install
+    ```
 
-    // The 'app' variable now holds our complete Virtual DOM tree.
-    // We can print it for inspection:
-    println!("{:#?}", app);
-}
-```
+#### **Step 2: Running the Application**
+
+To see your changes, follow these steps:
+
+1.  **If you've changed Rust code** in `src/`, you must re-compile it. From the **root** of the project (`rusty-react/`):
+    ```bash
+    wasm-pack build --target web
+    ```
+2.  **Run the Vite development server.** From the **example app** directory (`examples/basic-render-test/`):
+    ```bash
+    npm run dev
+    ```
+3.  Open the URL provided by Vite in your browser to see the rendered output.
+
+### Running Tests
+
+We have two types of tests:
+
+1.  **Rust Unit Tests:** These test the core VDOM logic (like `render_to_string`) without a browser. They are fast and can be run from the project root.
+    ```bash
+    cargo test
+    ```
+2.  **End-to-End Test:** Running the example app itself is our primary end-to-end test to ensure the Wasm interacts correctly with the browser DOM.
+
+---
 
 ## Roadmap
 
 Our high-level plan is to build out the core features in the following order:
 
-*   **[Next] Renderer**: Implement a simple renderer that can take a `Node` tree and convert it into an HTML string.
-*   **Reconciliation (Diffing)**: Create the "diff and patch" algorithm that compares two Virtual DOM trees and generates a list of minimal changes.
-*   **DOM Patcher**: Apply the generated patches to a real DOM (initially, maybe just printing the changes like "Set attribute 'id' on DIV").
-*   **Components & State**: Introduce the concept of components as stateful functions or structs that can re-render.
+-   **[In Progress] Renderer**: Implement a simple renderer that can take a `Node` tree and convert it into real DOM nodes.
+-   **[Next] Components & State**: Introduce the concept of components as stateful functions or structs that can re-render.
+-   **Reconciliation (Diffing)**: Create the "diff and patch" algorithm that compares two Virtual DOM trees and generates a list of minimal changes.
+-   **DOM Patcher**: Apply the generated patches to a real DOM efficiently.
+
 
 ## Contributing
 
