@@ -22,17 +22,19 @@ We draw heavy inspiration from the actual React codebase and other innovative Ru
 
 ## Current Status
 
-**Stage: 2 - Initial DOM Rendering**
+**Stage: 3 - Component Architecture**
 
-We have successfully implemented the foundational structures and a basic renderer capable of mounting a virtual DOM tree to a live browser DOM.
+We have successfully abstracted our rendering logic into a component-based model. Our library can now render a UI defined within a reusable component, which is the foundational pattern for building complex applications.
 
-- [x] Defined `Element` and `Node` (for text) structs for the Virtual DOM.
-- [x] Implemented a "Virtual DOM" tree can be built in memory.
+- [x] Defined `Element` and `Node` structs for the Virtual DOM.
+- [x] Implemented a renderer that mounts a VDOM tree to a live browser DOM.
 - [x] Established support for `props` (attributes) and `children`.
-- [x] **(New)** Implemented a Rust function `render()` that translates the Virtual DOM tree into real DOM nodes using WebAssembly and `web-sys`.
-- [x] **(New)** Created a bridge to JavaScript, allowing the Rust `render` function to be called from a standard TypeScript/Vite application.
+- [x] **(New)** Introduced a `Component` trait to define a reusable UI contract.
+- [x] **(New)** Refactored the VDOM and renderer to be "component-aware," allowing them to render abstract components instead of just static data.
+- [x] **(New)** Implemented a root `App` component that encapsulates the main UI view.
+- [x] **(New)** The `Node` enum now uses `Box<dyn Component>` to handle different component types polymorphically, a core concept for UI library design.
 
-The library can now render a static UI to the screen.
+The library now renders a UI defined within a component structure, setting the stage for statefulness.
 
 ---
 
@@ -110,8 +112,9 @@ We have two types of tests:
 
 Our high-level plan is to build out the core features in the following order:
 
--   **[In Progress] Renderer**: Implement a simple renderer that can take a `Node` tree and convert it into real DOM nodes.
--   **[Next] Components & State**: Introduce the concept of components as stateful functions or structs that can re-render.
+-   **[Done] Renderer**: Implement a simple renderer that can take a `Node` tree and convert it into real DOM nodes.
+-   **[In Progress] Components & State**: Introduce the concept of components as stateful functions or structs that can re-render.
+-   **[Next] State Management & Re-rendering**: Give components an internal state and a mechanism to trigger a re-render when that state changes.
 -   **Reconciliation (Diffing)**: Create the "diff and patch" algorithm that compares two Virtual DOM trees and generates a list of minimal changes.
 -   **DOM Patcher**: Apply the generated patches to a real DOM efficiently.
 
