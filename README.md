@@ -121,7 +121,7 @@ Our high-level plan is to build out the core features in the following order:
 
 ## Contributing
 
-As this is primarily an educational project, we aren't seeking major contributions at this time. However, feedback, suggestions, and questions are always welcome! Feel free to open an issue to discuss ideas.
+As this is primarily an educational project, we aren't seeking major contributions at this time. However, feedback, suggestions, and questions are always welcome! Feel free to open an issue to discuss ideas. Thanks for staring ⭐ 
 
 ## License
 
