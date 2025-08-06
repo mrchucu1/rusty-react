@@ -36,6 +36,8 @@ We have successfully abstracted our rendering logic into a component-based model
 
 The library now renders a UI defined within a component structure, setting the stage for statefulness.
 
+TODO: Create a diffing mechanism
+
 ---
 
 ## Developer Guide
@@ -121,7 +123,7 @@ Our high-level plan is to build out the core features in the following order:
 
 ## Contributing
 
-As this is primarily an educational project, we aren't seeking major contributions at this time. However, feedback, suggestions, and questions are always welcome! Feel free to open an issue to discuss ideas. Thanks for staring ⭐ 
+As this is primarily an educational project, we aren't seeking major contributions at this time. However, feedback, suggestions, and questions are always welcome! Feel free to open an issue to discuss ideas. Thanks for staring ⭐
 
 ## License
 
